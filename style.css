@@ -227,7 +227,7 @@ body {
 }
 
 .user-menu {
-    background: rgb(216, 100, 32);
+    background: rgb(129, 129, 129);
     border: 1px solid #ec3030ce;
     padding: 0.4rem 1rem;
     border-radius: 2rem;
@@ -236,7 +236,7 @@ body {
 }
 
 .user-menu:hover {
-    background: #ff5e00;
+    background: #eb6f28;
     color: #000;
     transform: translateY(-2px);
 }
