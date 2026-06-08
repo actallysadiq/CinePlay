@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CinePlay | Royal Streaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- AUTHENTICATION OVERLAY -->
+<div id="auth-overlay">
+    <div class="auth-modal">
+        <div class="auth-header">
+            <h1>CinePlay</h1>
+            <p>Royal Cinema · Unlimited Stories</p>
+        </div>
+        <div class="auth-tabs">
+            <button class="tab-btn active" data-tab="login-tab">Sign In</button>
+            <button class="tab-btn" data-tab="register-tab">Register</button>
+        </div>
+        <!-- Login -->
+        <div id="login-tab" class="auth-panel active-panel">
+            <input type="email" id="login-email" placeholder="Email address">
+            <input type="password" id="login-password" placeholder="Password">
+            <button id="do-login" class="auth-action">Continue</button>
+            <div class="auth-error" id="login-error"></div>
+        </div>
+        <!-- Register -->
+        <div id="register-tab" class="auth-panel">
+            <input type="text" id="reg-name" placeholder="Full name">
+            <input type="email" id="reg-email" placeholder="Email address">
+            <input type="password" id="reg-password" placeholder="Password (min 6 chars)">
+            <button id="do-register" class="auth-action">Create Account</button>
+            <div class="auth-error" id="reg-error"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APP (HIDDEN UNTIL LOGIN) -->
+<div id="main-app" style="display: none;">
+    <!-- HEADER WITH BACKGROUND IMAGE & NAVBAR -->
+    <header class="hero-header" id="hero-header">
+        <div class="navbar">
+            <div class="logo">CinePlay</div>
+            <div class="hamburger" id="hamburger"><i class="fas fa-bars"></i></div>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#" data-page="home">Home</a></li>
+                <li><a href="#" data-page="movies">Movies</a></li>
+                <li><a href="#" data-page="tvshows">TV Shows</a></li>
+                <li><a href="#" data-page="newpopular">New & Popular</a></li>
+                <li><a href="#" data-page="mylist">My List</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="search-box">
+                    <input type="text" id="global-search-input" placeholder="Search...">
+                    <button id="global-search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                <button class="user-menu" id="logout-btn"><i class="fas fa-user-circle"></i> Logout</button>
+            </div>
+        </div>
+        <div class="hero-content">
+            <h1>Unlimited Royal Entertainment</h1>
+            <p>Watch anywhere. Cancel anytime.</p>
+            <button class="cta-btn" id="featured-play">Play Trailer <i class="fas fa-play"></i></button>
+        </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main>
+        <!-- TRENDING NOW CAROUSEL -->
+        <section class="carousel-section">
+            <h2><i class="fas fa-chart-line"></i> Trending Now</h2>
+            <div class="carousel-container" id="trending-carousel">
+                <!-- JS fills -->
+            </div>
+            <button class="carousel-prev" data-target="trending"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-next" data-target="trending"><i class="fas fa-chevron-right"></i></button>
+        </section>
+
+        <!-- RECENTLY ADDED -->
+        <section class="carousel-section">
+            <h2><i class="fas fa-clock"></i> Recently Added</h2>
+            <div class="carousel-container" id="recent-carousel"></div>
+            <button class="carousel-prev" data-target="recent"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-next" data-target="recent"><i class="fas fa-chevron-right"></i></button>
+        </section>
+
+        <!-- MY WATCHLIST (MY LIST) -->
+        <section class="carousel-section" id="watchlist-section">
+            <h2><i class="fas fa-list"></i> My Watchlist</h2>
+            <div class="carousel-container" id="watchlist-carousel"></div>
+            <button class="carousel-prev" data-target="watchlist"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-next" data-target="watchlist"><i class="fas fa-chevron-right"></i></button>
+            <div id="watchlist-empty-msg" style="text-align:center; padding:2rem;">Your watchlist is empty. Add movies from Trending or Recently Added.</div>
+        </section>
+
+        <!-- WHY CHOOSE US -->
+        <section class="why-us">
+            <h2>Why choose CinePlay?</h2>
+            <div class="features-grid">
+                <div class="feature"><i class="fas fa-crown"></i><h3>Royal Library</h3><p>4K + HDR</p></div>
+                <div class="feature"><i class="fas fa-globe"></i><h3>Watch Anywhere</h3><p>Mobile, TV, Web</p></div>
+                <div class="feature"><i class="fas fa-ticket-alt"></i><h3>No Ads</h3><p>Premium experience</p></div>
+                <div class="feature"><i class="fas fa-download"></i><h3>Download & Go</h3><p>Offline viewing</p></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+        <div class="footer-columns">
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul><li>Help Center</li><li>Contact Us</li><li>FAQ</li></ul>
+            </div>
+            <div class="footer-col">
+                <h4>Info</h4>
+                <ul><li>About CinePlay</li><li>Careers</li><li>Terms of Use</li></ul>
+            </div>
+            <div class="footer-col newsletter">
+                <h4>Newsletter</h4>
+                <input type="email" placeholder="Your email" id="newsletter-email">
+                <button id="newsletter-subscribe">Subscribe</button>
+            </div>
+            <div class="footer-col socials">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <i class="fab fa-instagram"></i><i class="fab fa-twitter"></i><i class="fab fa-facebook"></i><i class="fab fa-youtube"></i>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2025 CinePlay — Royal Streaming Experience</div>
+    </footer>
+</div>
+
+<!-- VIDEO PLAYER MODAL -->
+<div id="video-modal" class="modal">
+    <div class="modal-content video-modal-content">
+        <span class="close-modal">&times;</span>
+        <video id="trailer-video" controls poster="https://via.placeholder.com/1280x720/1a162e/d4af37?text=CinePlay">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+        </video>
+        <div class="video-info"><h3 id="video-movie-title"></h3><p id="video-movie-desc"></p></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
