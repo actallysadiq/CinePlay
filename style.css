@@ -71,7 +71,7 @@ body {
 }
 
 .tab-btn.active {
-    color: #ff5e00;
+    color: #ec6516;
     border-bottom-color: #ff5e00;
 }
 
@@ -195,7 +195,7 @@ body {
 }
 
 .search-box {
-    background: #1c1c1c;
+    background: #38383891;
     border-radius: 2rem;
     padding: 0.3rem 1rem;
     border: 1px solid #333;
@@ -227,8 +227,8 @@ body {
 }
 
 .user-menu {
-    background: rgba(255,94,0,0.2);
-    border: 1px solid #ff5e00;
+    background: rgb(216, 100, 32);
+    border: 1px solid #ec3030ce;
     padding: 0.4rem 1rem;
     border-radius: 2rem;
     cursor: pointer;
