@@ -139,34 +139,78 @@ function openPlayer(movie) {
     document.getElementById('video-movie-desc').innerText = movie.description;
     modal.style.display = 'flex';
     const video = document.getElementById('trailer-video');
-    video.load();
+    if (video) video.load();
 }
-document.querySelector('.close-modal').addEventListener('click', () => {
-    document.getElementById('video-modal').style.display = 'none';
-    document.getElementById('trailer-video').pause();
-});
 
-// Authentication
-function register(name, email, pass) {
-    let users = JSON.parse(localStorage.getItem('cineplay_users') || '[]');
-    if(users.find(u => u.email === email)) return false;
-    users.push({ email, name, password: btoa(pass), watchlist: [], memberSince: new Date().toISOString() });
-    localStorage.setItem('cineplay_users', JSON.stringify(users));
-    return true;
+const closeModalBtn = document.querySelector('.close-modal');
+if(closeModalBtn) {
+    closeModalBtn.addEventListener('click', () => {
+        document.getElementById('video-modal').style.display = 'none';
+        const video = document.getElementById('trailer-video');
+        if(video) video.pause();
+    });
 }
-function login(email, pass) {
-    let users = JSON.parse(localStorage.getItem('cineplay_users') || '[]');
-    const user = users.find(u => u.email === email && atob(u.password) === pass);
-    if(user) {
-        currentUser = { ...user, password: undefined };
-        localStorage.setItem('cineplay_current', JSON.stringify(currentUser));
-        return true;
+
+// Authentication 
+// (Note: login still uses localStorage for now. You will want to update it to use fetch('login.php') later!)
+// --- UPDATED MYSQL LOGIN LOGIC ---
+document.getElementById('do-login').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
+
+    if (!email || !pass) {
+        document.getElementById('login-error').innerText = 'Please fill in all fields';
+        return;
     }
-    return false;
-}
-function logout() {
+
+    try {
+        // Ask the PHP server if the user exists and the password is correct
+        const response = await fetch('login.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: pass })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Login worked! Save the database user to our global state
+            currentUser = result.user;
+            
+            // Make sure the watchlist array exists so our UI doesn't crash
+            currentUser.watchlist = []; 
+            
+            // Save the active session locally so they stay logged in when they refresh
+            localStorage.setItem('cineplay_current', JSON.stringify(currentUser));
+
+            // Hide the login screen and load the movies
+            authOverlay.style.display = 'none';
+            mainApp.style.display = 'block';
+            fetchMovies();
+            
+        } else {
+            // Display the exact error (e.g., "Invalid email or password")
+            document.getElementById('login-error').innerText = result.message || 'Login failed';
+        }
+        
+    } catch (error) {
+        console.error("Network/Fetch Error:", error);
+        document.getElementById('login-error').innerText = "Failed to connect to server.";
+    }
+});
+async function logout() {
+    try {
+        // 1. Tell the PHP server to destroy the backend session
+        await fetch('logout.php');
+    } catch (error) {
+        console.error("Server logout failed, but clearing local session anyway.", error);
+    }
+
+    // 2. Clear the frontend memory
     currentUser = null;
     localStorage.removeItem('cineplay_current');
+
+    // 3. Kick the user back to the login screen
     authOverlay.style.display = 'flex';
     mainApp.style.display = 'none';
 }
@@ -190,16 +234,49 @@ document.getElementById('do-login').addEventListener('click', () => {
     if(login(email, pass)) loadSession();
     else document.getElementById('login-error').innerText = 'Invalid credentials';
 });
-document.getElementById('do-register').addEventListener('click', () => {
+
+// --- UPDATED MYSQL REGISTRATION LOGIC ---
+document.getElementById('do-register').addEventListener('click', async () => {
     const name = document.getElementById('reg-name').value;
     const email = document.getElementById('reg-email').value;
     const pass = document.getElementById('reg-password').value;
-    if(pass.length < 6) { document.getElementById('reg-error').innerText = 'Password min 6 chars'; return; }
-    if(register(name, email, pass)) {
-        alert('Registered! Please login.');
-        document.querySelector('[data-tab="login-tab"]').click();
-    } else document.getElementById('reg-error').innerText = 'Email exists';
+
+    if(pass.length < 6) { 
+        document.getElementById('reg-error').innerText = 'Password min 6 chars'; 
+        return; 
+    }
+
+    try {
+        // Send data to the PHP backend
+        const response = await fetch('register.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: name, email: email, password: pass })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Registered successfully! Please login.');
+            document.querySelector('[data-tab="login-tab"]').click();
+        } else {
+            // Display the error from PHP
+            document.getElementById('reg-error').innerText = result.message || 'Registration failed';
+            
+            // Prints the exact MySQL error to your console if one occurs
+            if(result.database_error) {
+                console.error("MySQL Error:", result.database_error); 
+            }
+        }
+    } catch (error) {
+        console.error("Network/Fetch Error:", error);
+        document.getElementById('reg-error').innerText = "Failed to connect to server.";
+    }
 });
+// ----------------------------------------
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -208,6 +285,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.getElementById(btn.dataset.tab).classList.add('active-panel');
     });
 });
+
 logoutBtn.addEventListener('click', logout);
 
 // Carousel sliding
@@ -227,6 +305,7 @@ function initCarousels() {
         });
     });
 }
+
 // Global search
 searchBtn.addEventListener('click', () => {
     const query = globalSearch.value.toLowerCase();
@@ -237,19 +316,23 @@ searchBtn.addEventListener('click', () => {
         alert(`Found ${filtered.length} movies. Check Trending section.`);
     } else alert('No movies found');
 });
+
 // Hamburger
 document.getElementById('hamburger').addEventListener('click', () => {
     document.getElementById('nav-menu').classList.toggle('active');
 });
+
 // Newsletter mock
 document.getElementById('newsletter-subscribe').addEventListener('click', () => {
     const email = document.getElementById('newsletter-email').value;
     if(email) alert(`Thanks ${email} for subscribing to royal updates!`);
 });
+
 // Featured play button
 document.getElementById('featured-play').addEventListener('click', () => {
-    if(trendingMovies[0]) openPlayer(trendingMovies[0]);
+    if(trendingMovies) openPlayer(trendingMovies);
 });
+
 // Nav links (simple page indication)
 document.querySelectorAll('.nav-menu a').forEach(link => {
     link.addEventListener('click', (e) => {
@@ -264,6 +347,7 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
         }
     });
 });
+
 // Start app
 loadSession();
 initCarousels();

@@ -21,10 +21,22 @@ if (empty($title)) {
     exit;
 }
 
-$stmt = $pdo->prepare("INSERT INTO user_movies (user_id, movie_title, movie_genre, movie_year, movie_rating, movie_poster, movie_description) VALUES (?, ?, ?, ?, ?, ?, ?)");
-if ($stmt->execute([$_SESSION['user_id'], $title, $genre, $year, $rating, $poster, $description])) {
+try {
+    // Note: Make sure there are exactly 7 question marks in the VALUES section!
+    $stmt = $pdo->prepare("INSERT INTO user_movies (user_id, movie_title, movie_genre, movie_year, movie_rating, movie_poster, movie_description) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    
+    // Execute handles the array safely
+    $stmt->execute([$_SESSION['user_id'], $title, $genre, $year, $rating, $poster, $description]);
+    
+    // Success! Send back the ID of the newly added movie
     echo json_encode(['success' => true, 'movie_id' => $pdo->lastInsertId()]);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Failed to add movie']);
+
+} catch (PDOException $e) {
+    // If the database crashes, this catches it and sends the exact error to your console
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Failed to add movie', 
+        'database_error' => $e->getMessage()
+    ]);
 }
 ?>

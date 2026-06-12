@@ -21,10 +21,17 @@ if ($stmt->fetch()) {
 }
 
 $hash = password_hash($password, PASSWORD_DEFAULT);
-$stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)");
-if ($stmt->execute([$name, $email, $hash])) {
-    echo json_encode(['success' => true, 'message' => 'Registration successful']);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Registration failed']);
-}
+try {
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)");
+        $stmt->execute([$name, $email, $hash]);
+        
+        echo json_encode(['success' => true, 'message' => 'Registration successful']);
+    } catch (PDOException $e) {
+        // This catches the fatal error and sends it neatly back to your frontend
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Registration failed', 
+            'database_error' => $e->getMessage()
+        ]);
+    }
 ?>
