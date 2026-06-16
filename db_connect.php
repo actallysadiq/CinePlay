@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
-$dbname = 'cineplay_db';
-$username = 'root';
-$password = '';
+$host = 'sql207.infinityfree.com';
+$dbname = 'if0_42191567_cineplay';
+$username = 'if0_42191567';
+$password = 'Sadiq1384';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
